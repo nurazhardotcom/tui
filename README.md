@@ -2,11 +2,11 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
 [![Clojure 1.12](https://img.shields.io/badge/Clojure-1.12-blue.svg)](https://clojure.org)
-[![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![CI](https://github.com/nurazhardotcom/tui/actions/workflows/ci.yml/badge.svg)](https://github.com/nurazhardotcom/tui/actions/workflows/ci.yml)
 
 > Terminal-first AI agent harness in Clojure. Inspired by OpenCode architecture. Built ground-up in Clojure. Licensed under GNU AGPLv3.
 
-![Demo](./demo.gif)
+> Demo: `vhs demo.tape` renders `demo.gif` locally (gitignored). See `demo.tape` for the scripted passkey + tool-loop walkthrough.
 
 ## Key Capabilities
 - **Decoupled Engine/Harness:** local tool execution separate from model reasoning and identity verification.
@@ -25,8 +25,8 @@ TUI CLI -> localhost:8080/auth -> OIDC Passkey -> local JWT -> Zen API adapter -
 # prerequisites: Java 21+, clojure CLI
 git clone https://github.com/nurazhardotcom/tui.git
 cd tui
-clj -M:run
-clj -M:test   # parallel runner, expects 0 failures
+clojure -M:run
+clojure -M:test   # parallel runner, expects 0 failures
 ```
 
 Config `~/.config/tui/config.edn`:
