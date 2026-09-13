@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "tui — Attestation Gate",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "green-path", "label": "Green push", "focus": ["push", "tests", "attest", "hygiene", "compile", "merge"], "note": "Every green push runs the same five checks." },
+      { "id": "red-path", "label": "Red push", "focus": ["attest", "hygiene", "blocked"], "note": "Any failure blocks the push at the gate." }
+    ],
+    "output": "ci.workflow.html"
+  },
+  "lanes": [
+    { "id": "dev", "label": "Developer" },
+    { "id": "ci", "label": "CI Runner" },
+    { "id": "policy", "label": "Gate", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "run", "label": "Run", "fromCol": 0, "toCol": 2 },
+    { "id": "verify", "label": "Verify", "fromCol": 3, "toCol": 5, "variant": "emphasis" }
+  ],
+  "mainPath": ["push", "tests", "attest", "hygiene", "compile", "merge"],
+  "nodes": [
+    { "id": "push", "lane": "dev", "col": 0, "type": "external", "label": "Push", "sublabel": "main / PR", "width": 132 },
+    { "id": "tests", "lane": "ci", "col": 1, "type": "backend", "label": "Parallel tests", "sublabel": "futures x7", "tag": "clojure -M:test", "width": 132 },
+    { "id": "attest", "lane": "ci", "col": 2, "type": "security", "label": "Attestation", "sublabel": "fail=0 error=0", "width": 132 },
+    { "id": "hygiene", "lane": "ci", "col": 3, "type": "security", "label": "Hygiene", "sublabel": "license+secrets", "width": 132 },
+    { "id": "blocked", "lane": "policy", "col": 2, "type": "security", "label": "Blocked", "sublabel": "fix + repush", "width": 132 },
+    { "id": "compile", "lane": "ci", "col": 4, "type": "backend", "label": "Compile check", "sublabel": "require all ns", "width": 132 },
+    { "id": "merge", "lane": "dev", "col": 5, "type": "backend", "label": "Merge", "sublabel": "ship it", "width": 132 }
+  ],
+  "edges": [
+    { "id": "push-tests", "from": "push", "to": "tests", "variant": "default" },
+    { "id": "tests-attest", "from": "tests", "to": "attest", "variant": "emphasis" },
+    { "id": "attest-hygiene", "from": "attest", "to": "hygiene", "label": "green", "variant": "emphasis" },
+    { "id": "attest-blocked", "from": "attest", "to": "blocked", "label": "red", "variant": "security", "role": "error" },
+    { "id": "hygiene-compile", "from": "hygiene", "to": "compile", "variant": "default" },
+    { "id": "hygiene-blocked", "from": "hygiene", "to": "blocked", "label": "leak?", "variant": "security", "role": "error" },
+    { "id": "compile-merge", "from": "compile", "to": "merge", "label": "clean", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Deterministic gate", "items": ["Concurrent futures, but counts are summed exactly", "TOTAL line is the contract hiring-relevant proof"] },
+    { "dot": "rose", "title": "Hygiene tripwire", "items": ["LICENSE must say MIT", "Any gho_ token pattern fails the build"] }
+  ]
+}

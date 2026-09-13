@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "tui — Prompt to First Chunk",
+    "output": "prompt.sequence.html",
+    "viewBox": [900, 640],
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "gate-phase", "label": "Gate phase", "focus": ["phone", "mw", "proxy"], "note": "JWT verified and identity attached before anything upstream." },
+      { "id": "stream-phase", "label": "Stream phase", "focus": ["proxy", "opencode", "zen"], "note": "One upstream POST fans out into many streamed chunks." }
+    ]
+  },
+  "participants": [
+    { "id": "phone", "type": "external", "label": "Phone", "sublabel": "Chrome mobile" },
+    { "id": "mw", "type": "security", "label": "wrap-jwt-auth", "sublabel": "middleware" },
+    { "id": "proxy", "type": "backend", "label": "proxy-handler", "sublabel": "gateway" },
+    { "id": "opencode", "type": "backend", "label": "opencode web", "sublabel": ":4096" },
+    { "id": "zen", "type": "external", "label": "Zen", "sublabel": "Responses API" }
+  ],
+  "segments": [
+    { "from": 130, "to": 220, "label": "Gate" },
+    { "from": 240, "to": 330, "label": "Upstream" },
+    { "from": 350, "to": 520, "label": "Stream" }
+  ],
+  "messages": [
+    { "id": "post-session", "from": "phone", "to": "mw", "y": 160, "label": "POST /session, Bearer JWT", "variant": "emphasis" },
+    { "id": "claims-ok", "from": "mw", "to": "proxy", "y": 205, "label": "claims + identity", "variant": "security" },
+    { "id": "forward-id", "from": "proxy", "to": "opencode", "y": 262, "label": "forward + identity", "variant": "emphasis" },
+    { "id": "post-responses", "from": "opencode", "to": "zen", "y": 310, "label": "POST /v1/responses, Bearer Zen", "variant": "emphasis" },
+    { "id": "chunk-1", "from": "zen", "to": "opencode", "y": 372, "label": "SSE chunk", "variant": "dashed" },
+    { "id": "chunk-2", "from": "zen", "to": "opencode", "y": 415, "label": "SSE chunk", "variant": "dashed" },
+    { "id": "stream-200", "from": "opencode", "to": "proxy", "y": 462, "label": "200 stream", "variant": "return" },
+    { "id": "phone-200", "from": "proxy", "to": "phone", "y": 508, "label": "200 stream", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "mw", "from": 155, "to": 210, "type": "security" },
+    { "participant": "proxy", "from": 200, "to": 515, "type": "backend" },
+    { "participant": "opencode", "from": 257, "to": 468, "type": "backend" },
+    { "participant": "zen", "from": 305, "to": 422, "type": "external" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "One POST, many chunks", "items": ["Single upstream call fans out into an SSE stream", "Gateway streams through; it never buffers the body"] },
+    { "dot": "rose", "title": "Two Bearers", "items": ["Phone authenticates with the short-lived JWT", "Zen authenticates with the server-side key — never the JWT"] }
+  ]
+}

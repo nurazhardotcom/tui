@@ -1,0 +1,50 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "tui — Request Lifecycle",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "happy-path", "label": "Prompt to stream", "focus": ["phone", "gate", "resolve", "build", "opencode", "zen"], "note": "Follow one authorized prompt to the first streamed chunk." },
+      { "id": "reject-paths", "label": "Reject paths", "focus": ["gate", "denied", "resolve", "nocred"], "note": "401 without JWT, 503 without any Zen credential." }
+    ],
+    "output": "request.workflow.html"
+  },
+  "lanes": [
+    { "id": "client", "label": "Client" },
+    { "id": "gateway", "label": "Gateway" },
+    { "id": "credential", "label": "Credential" },
+    { "id": "backend", "label": "Backend + Zen" },
+    { "id": "policy", "label": "Rejects", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "intake", "label": "Intake", "fromCol": 0, "toCol": 1 },
+    { "id": "gate", "label": "Gate", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "proxy", "label": "Proxy + stream", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["phone", "gate", "resolve", "build", "opencode", "zen"],
+  "nodes": [
+    { "id": "phone", "lane": "client", "col": 0, "type": "external", "label": "Phone", "sublabel": "POST + JWT", "width": 132 },
+    { "id": "gate", "lane": "gateway", "col": 1, "type": "security", "label": "JWT gate", "sublabel": "wrap-jwt-auth", "tag": "HS256", "width": 132 },
+    { "id": "denied", "lane": "policy", "col": 1, "type": "security", "label": "401", "sublabel": "unauthorized", "width": 132 },
+    { "id": "resolve", "lane": "credential", "col": 2, "type": "security", "label": "Resolve credential", "sublabel": "OAuth to fallback", "width": 132 },
+    { "id": "nocred", "lane": "policy", "col": 2, "type": "security", "label": "503", "sublabel": "no credential", "width": 132 },
+    { "id": "build", "lane": "gateway", "col": 3, "type": "backend", "label": "Build proxy req", "sublabel": "inject Bearer", "width": 132 },
+    { "id": "opencode", "lane": "backend", "col": 4, "type": "backend", "label": "opencode web", "sublabel": ":4096 sessions", "width": 132 },
+    { "id": "zen", "lane": "backend", "col": 5, "type": "cloud", "label": "Zen Responses", "sublabel": "SSE stream", "width": 132 }
+  ],
+  "edges": [
+    { "id": "phone-gate", "from": "phone", "to": "gate", "variant": "default" },
+    { "id": "gate-denied", "from": "gate", "to": "denied", "label": "bad JWT", "variant": "security", "role": "error" },
+    { "id": "gate-resolve", "from": "gate", "to": "resolve", "label": "claims ok", "variant": "emphasis" },
+    { "id": "resolve-nocred", "from": "resolve", "to": "nocred", "label": "nothing found", "variant": "security", "role": "error" },
+    { "id": "resolve-build", "from": "resolve", "to": "build", "variant": "emphasis" },
+    { "id": "build-opencode", "from": "build", "to": "opencode", "variant": "default" },
+    { "id": "opencode-zen", "from": "opencode", "to": "zen", "label": "POST /responses", "variant": "emphasis" },
+    { "id": "zen-phone", "from": "zen", "to": "phone", "label": "SSE chunks", "variant": "dashed", "role": "return", "fromSide": "right", "toSide": "right", "route": "outside-right", "width": 1.2 }
+  ],
+  "cards": [
+    { "dot": "rose", "title": "Fail closed", "items": ["No JWT -> 401 before anything else runs", "No credential -> 503 before any upstream call"] },
+    { "dot": "emerald", "title": "Streaming", "items": ["SSE passes through untouched (:as :stream)", "Gateway adds auth, never buffers the body"] }
+  ]
+}

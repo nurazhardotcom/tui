@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "tui — Hybrid Runtime",
+    "output": "runtime.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "main-path", "label": "Request path", "focus": ["phone", "tunnel", "gateway", "opencode", "zen"], "note": "Follow one prompt from the phone to the model and back." },
+      { "id": "secrets-path", "label": "Secrets path", "focus": ["secrets", "gateway", "zen"], "note": "Raw keys move only here; logs see redacted forms." }
+    ]
+  },
+  "components": [
+    { "id": "phone", "type": "external", "label": "Phone browser", "sublabel": "Chrome mobile", "pos": [40, 300], "size": [140, 64] },
+    { "id": "tunnel", "type": "cloud", "label": "Cloudflare Tunnel", "sublabel": "no open ports", "pos": [250, 300], "size": [150, 64] },
+    { "id": "gateway", "type": "backend", "label": "tui gateway :8080", "sublabel": "JWT gate + Zen inject", "pos": [470, 300], "size": [160, 64], "tag": "Clojure" },
+    { "id": "opencode", "type": "backend", "label": "opencode web :4096", "sublabel": "sessions PTY tools", "pos": [700, 300], "size": [160, 64] },
+    { "id": "worker", "type": "cloud", "label": "Edge Worker", "sublabel": "ingest + rollback only", "pos": [930, 300], "size": [150, 64] },
+    { "id": "secrets", "type": "security", "label": "Local secrets", "sublabel": "auth.json + env keys", "pos": [470, 120], "size": [160, 64] },
+    { "id": "zen", "type": "external", "label": "Zen Responses API", "sublabel": "muse-spark-1.3", "pos": [700, 120], "size": [160, 64], "tag": "POST /v1/responses" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Your host (laptop / Northflank origin)", "wraps": ["gateway", "opencode", "secrets"] },
+    { "kind": "security-group", "label": "JWT trust boundary", "wraps": ["gateway"] }
+  ],
+  "connections": [
+    { "id": "phone-tunnel", "from": "phone", "to": "tunnel", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "tunnel-gateway", "from": "tunnel", "to": "gateway", "label": "forward :8080" },
+    { "id": "gateway-opencode", "from": "gateway", "to": "opencode", "label": "proxy + identity", "variant": "emphasis", "labelAt": [665, 378] },
+    { "id": "gateway-zen-key", "from": "gateway", "to": "zen", "label": "Bearer up / SSE down", "variant": "security", "fromSide": "top", "toSide": "left" },
+    { "id": "secrets-inject", "from": "secrets", "to": "gateway", "label": "inject server-side", "variant": "security", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelAt": [550, 198] },
+    { "id": "opencode-telemetry", "from": "opencode", "to": "worker", "label": "telemetry", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Hybrid, not a rewrite", "items": ["Clojure owns auth + key handling; upstream opencode owns sessions, PTY, tools", "Gateway never stores prompts; it only gates and forwards"] },
+    { "dot": "rose", "title": "Secrets rule", "items": ["Raw keys travel gateway -> Zen only", "Every log line carries ****last4, enforced by test"] },
+    { "dot": "emerald", "title": "Edge role", "items": ["Worker ingests telemetry and is a rollback target", "No agent loops at the edge (CPU caps)"] }
+  ]
+}

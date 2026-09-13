@@ -26,6 +26,27 @@ Browser/phone -> tui gateway :8080 (JWT gate, Zen inject, ****last4 logs)
                       | edge telemetry -> Cloudflare Worker (ingest + rollback target)
 ```
 
+## Diagrams (learn visually)
+
+Nine interactive diagrams in [`docs/archify/`](docs/archify/) — open the
+`.html` files in a browser. Typed JSON IR → deterministic render
+([archify method](https://github.com/tt-a1i/archify)); validated showcase,
+zero warnings:
+
+| Diagram | Question it answers |
+|---|---|
+| `runtime.html` | Phone → tunnel → gateway → opencode → Zen: where do raw keys go? |
+| `namespaces.html` | What namespace does what, in what read order? |
+| `request.html` | Per-request lifecycle incl. 401/503 exits? |
+| `ci.html` | What runs per push, what blocks it? |
+| `prompt.html` | One prompt to first streamed chunk, who calls whom? |
+| `auth.html` | How does the JWT middleware accept/reject? |
+| `secrets.html` | Raw secrets vs `****last4` — where's the boundary? |
+| `context.html` | How is context budgeted to 32k? |
+| `credential.html` | OAuth → expired → fallback → denied? |
+
+Newcomer read order: namespaces → runtime → request → prompt → secrets → context → auth → credential → ci.
+
 ## Run it remotely (single-user, mobile-friendly)
 ```bash
 # 1. on the host: start upstream backend

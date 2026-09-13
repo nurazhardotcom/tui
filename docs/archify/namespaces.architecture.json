@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "tui — Namespace Map",
+    "output": "namespaces.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "request-wiring", "label": "Request wiring", "focus": ["core", "gateway", "zenoauth", "zen"], "note": "How a serve call wires credential resolution into the proxy." },
+      { "id": "pure-core", "label": "Pure core", "focus": ["core", "auth", "tools", "stream"], "note": "Pure helpers with no network: gates, budgets, assembly." }
+    ]
+  },
+  "components": [
+    { "id": "core", "type": "backend", "label": "tui.core", "sublabel": "-main serve + config", "pos": [430, 80], "size": [150, 64], "tag": "entry" },
+    { "id": "auth", "type": "security", "label": "tui.auth", "sublabel": "pure OIDC helpers", "pos": [60, 240], "size": [150, 64] },
+    { "id": "zen", "type": "backend", "label": "tui.zen", "sublabel": "Responses payloads", "pos": [260, 240], "size": [150, 64] },
+    { "id": "zenoauth", "type": "security", "label": "tui.zen-oauth", "sublabel": "OAuth to fallback", "pos": [460, 240], "size": [150, 64] },
+    { "id": "gateway", "type": "backend", "label": "tui.gateway", "sublabel": "JWT + proxy", "pos": [660, 240], "size": [150, 64], "tag": "new" },
+    { "id": "tools", "type": "backend", "label": "tui.tools", "sublabel": "allow-list gates", "pos": [860, 240], "size": [150, 64] },
+    { "id": "stream", "type": "messagebus", "label": "tui.stream", "sublabel": "chunk assembly", "pos": [860, 400], "size": [150, 64] },
+    { "id": "tests", "type": "database", "label": "7 test namespaces", "sublabel": "31 tests, futures", "pos": [260, 400], "size": [150, 64], "tag": "attestation" },
+    { "id": "deps", "type": "external", "label": "Maven deps", "sublabel": "ring buddy clj-http", "pos": [660, 400], "size": [150, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "tui repo src/", "wraps": ["core", "auth", "zen", "zenoauth", "gateway", "tools", "stream"] },
+    { "kind": "security-group", "label": "authN/Z boundary", "wraps": ["auth", "zenoauth", "gateway"] }
+  ],
+  "connections": [
+    { "id": "core-auth", "from": "core", "to": "auth", "label": "uses", "labelAt": [150, 190] },
+    { "id": "core-gateway", "from": "core", "to": "gateway", "label": "serve wiring", "variant": "emphasis" },
+    { "id": "core-tools", "from": "core", "to": "tools", "label": "uses" },
+    { "id": "gateway-zenoauth", "from": "gateway", "to": "zenoauth", "label": "resolve fn", "variant": "security", "labelAt": [700, 318] },
+    { "id": "zenoauth-zen", "from": "zenoauth", "to": "zen", "label": "redact-key", "fromSide": "top", "toSide": "top" },
+    { "id": "gateway-deps", "from": "gateway", "to": "deps", "label": "jetty JWT http", "variant": "dashed", "labelAt": [735, 318] },
+    { "id": "tests-core", "from": "tests", "to": "core", "label": "covers", "variant": "dashed", "fromSide": "left", "toSide": "left", "labelAt": [100, 200] },
+    { "id": "tests-gateway", "from": "tests", "to": "gateway", "label": "roundtrip", "variant": "dashed", "fromSide": "right", "toSide": "left" },
+    { "id": "tests-zen", "from": "tests", "to": "zen", "label": "payloads", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Read order", "items": ["core -> gateway -> zen-oauth -> zen gives the request path", "auth, tools, stream are pure: read in any order"] },
+    { "dot": "emerald", "title": "Test rule", "items": ["Every namespace has a test namespace; I/O is injected", "Runner uses futures; TOTAL fail=0 error=0 gates push"] }
+  ]
+}

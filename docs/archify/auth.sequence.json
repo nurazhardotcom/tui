@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "tui — JWT Verify Chain",
+    "output": "auth.sequence.html",
+    "viewBox": [900, 620],
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "accept-path", "label": "Accept path", "focus": ["phone", "mw", "buddy", "handler", "backend"], "note": "Valid token flows to the backend with identity attached." },
+      { "id": "reject-path", "label": "Reject path", "focus": ["phone", "mw"], "note": "Any verification failure returns 401 immediately." }
+    ]
+  },
+  "participants": [
+    { "id": "phone", "type": "external", "label": "Phone", "sublabel": "client" },
+    { "id": "mw", "type": "security", "label": "wrap-jwt-auth", "sublabel": "middleware" },
+    { "id": "buddy", "type": "security", "label": "buddy-sign", "sublabel": "HS256" },
+    { "id": "handler", "type": "backend", "label": "proxy-handler", "sublabel": "gateway" },
+    { "id": "backend", "type": "backend", "label": "opencode web", "sublabel": ":4096" }
+  ],
+  "segments": [
+    { "from": 130, "to": 250, "label": "Verify" },
+    { "from": 270, "to": 380, "label": "Proxy" },
+    { "from": 440, "to": 480, "label": "Reject" }
+  ],
+  "messages": [
+    { "id": "req-jwt", "from": "phone", "to": "mw", "y": 160, "label": "request + Bearer JWT", "variant": "emphasis" },
+    { "id": "unsign", "from": "mw", "to": "buddy", "y": 205, "label": "unsign HS256", "variant": "security" },
+    { "id": "claims", "from": "buddy", "to": "mw", "y": 245, "label": "claims map", "variant": "return" },
+    { "id": "with-id", "from": "mw", "to": "handler", "y": 295, "label": "+identity", "variant": "emphasis" },
+    { "id": "proxy-be", "from": "handler", "to": "backend", "y": 332, "label": "proxy", "variant": "default" },
+    { "id": "be-200", "from": "backend", "to": "handler", "y": 366, "label": "200", "variant": "return" },
+    { "id": "reject-401", "from": "mw", "to": "phone", "y": 460, "label": "401 unauthorized", "variant": "security" }
+  ],
+  "activations": [
+    { "participant": "mw", "from": 155, "to": 465, "type": "security" },
+    { "participant": "buddy", "from": 200, "to": 250, "type": "security" },
+    { "participant": "handler", "from": 290, "to": 385, "type": "backend" },
+    { "participant": "backend", "from": 335, "to": 385, "type": "backend" }
+  ],
+  "cards": [
+    { "dot": "rose", "title": "Fail closed", "items": ["nil token, wrong secret, tampered signature all -> nil -> 401", "Handler code is unreachable without claims"] },
+    { "dot": "emerald", "title": "Tested", "items": ["Roundtrip, tamper, wrong-secret, and empty cases in gateway-test", "Middleware covered with and without headers"] }
+  ]
+}
