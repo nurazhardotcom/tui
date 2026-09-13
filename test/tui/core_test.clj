@@ -15,4 +15,4 @@
       (is (clojure.string/includes? (core/prune-context s 10) "[truncated]")))))
 
 (deftest license-notice-test
-  (is (clojure.string/includes? (core/license-notice) "AGPL")))
+  (is (clojure.string/includes? (core/license-notice) "MIT")))

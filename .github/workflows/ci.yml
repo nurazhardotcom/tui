@@ -25,5 +25,5 @@ jobs:
       - name: License + secret hygiene
         run: |
           test -f LICENSE
-          grep -q "GNU AFFERO GENERAL PUBLIC LICENSE" LICENSE
+          grep -q "MIT License" LICENSE
           ! grep -R "gho_" --include="*.clj" --include="*.edn" --include="*.sh" src test . || (echo "possible token leak" && exit 1)

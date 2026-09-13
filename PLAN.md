@@ -1,6 +1,6 @@
 # PLAN.md — tui harness MVP
 
-Owner decisions: repo `tui` lowercase, public, AGPLv3, Clerk default with Keycloak swap path, include Cloudflare edge.
+Owner decisions: repo `tui` lowercase, public, MIT, Clerk default with Keycloak swap path, include Cloudflare edge.
 
 ## M0 Scaffold (this commit)
 - deps.edn, src/tui/{core,auth,zen,tools,stream}, test/* + parallel runner, README, LICENSE, demo.tape, install.sh

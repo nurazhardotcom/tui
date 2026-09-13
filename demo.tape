@@ -10,7 +10,7 @@ Set Theme "Catppuccin Mocha"
 Hide
 Type "clear" Enter
 Show
-Type "# tui — Clojure agent harness (AGPLv3)" Enter
+Type "# tui — Clojure agent harness (MIT)" Enter
 Sleep 1s
 Type "clj -M:run" Enter
 Sleep 1s

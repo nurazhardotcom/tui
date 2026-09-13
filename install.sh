@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# tui installer (MVP) — AGPLv3 source offer per LICENSE §13.
+# tui installer (MVP) — MIT licensed, see LICENSE.
 set -euo pipefail
 REPO="nurazhardotcom/tui"
-echo "Source: https://github.com/${REPO} (AGPLv3)."
+echo "Source: https://github.com/${REPO} (MIT)."
 
 command -v java >/dev/null || { echo "error: java 21+ required" >&2; exit 1; }
 command -v clojure >/dev/null || { echo "error: clojure CLI required (https://clojure.org/guides/install_clojure)" >&2; exit 1; }

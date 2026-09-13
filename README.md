@@ -1,10 +1,12 @@
 # tui — TUI `tui.nurazhar.com`
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
+> **Status:** Active — personal prod gateway, dogfooded daily. See [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Clojure 1.12](https://img.shields.io/badge/Clojure-1.12-blue.svg)](https://clojure.org)
 [![CI](https://github.com/nurazhardotcom/tui/actions/workflows/ci.yml/badge.svg)](https://github.com/nurazhardotcom/tui/actions/workflows/ci.yml)
 
-> Terminal-first AI agent harness in Clojure. Inspired by OpenCode architecture. Built ground-up in Clojure. Licensed under GNU AGPLv3.
+> Terminal-first AI agent harness in Clojure. Inspired by OpenCode architecture. Built ground-up in Clojure. Licensed under MIT.
 
 > Demo: `vhs demo.tape` renders `demo.gif` locally (gitignored). See `demo.tape` for the scripted passkey + tool-loop walkthrough.
 
@@ -47,4 +49,4 @@ Config `~/.config/tui/config.edn`:
 - Charm VHS: terminal demos.
 
 ## License
-GNU AGPLv3 — see `LICENSE`. Network use triggers source disclosure (§13).
+MIT — see `LICENSE`.

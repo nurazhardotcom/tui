@@ -1,7 +1,7 @@
 (ns tui.core
   "Terminal-first AI agent harness entry point.
    Inspired by OpenCode architecture. Built ground-up in Clojure.
-   Licensed under GNU AGPLv3."
+   Licensed under MIT."
   (:require [tui.auth :as auth]
             [tui.zen :as zen]
             [tui.tools :as tools]
@@ -12,7 +12,7 @@
 (def version "0.1.0")
 
 (defn license-notice []
-  "tui 0.1.0 — Copyright (C) 2026 Nur Azhar. Licensed under GNU AGPLv3. See LICENSE.")
+  "tui 0.1.0 — Copyright (C) 2026 Nur Azhar. Licensed under MIT. See LICENSE.")
 
 (defn default-config []
   {:auth {:provider :clerk
