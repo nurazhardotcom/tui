@@ -12,3 +12,7 @@ demo.mp4
 demo.gif
 # local plan-mode export, never commit
 Forking OpenCode and Free Quotas.pdf
+# visual-check sidecars (regenerable evidence, not source)
+docs/archify/*.visual-check.html
+docs/archify/*.visual-check.json
+docs/archify/*.visual-check.*.png
