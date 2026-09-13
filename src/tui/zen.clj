@@ -5,6 +5,33 @@
 
 (def default-endpoint "https://opencode.ai/zen/v1")
 
+(defn endpoint [base path] (str base path))
+
+(def responses-path "/responses")
+
+(def contributor-model "muse-spark-1.3-contributor-free")
+
+(defn responses-url
+  "Full URL for the Responses API (the Zen route serving Muse Spark contributor-free)."
+  [base]
+  (endpoint base responses-path))
+
+(defn messages->input
+  "Normalize internal [{:role :user :content}] messages to Responses input items."
+  [messages]
+  (mapv (fn [{:keys [role content]}]
+          {:role (name role) :content content})
+        messages))
+
+(defn responses-payload
+  "Map internal messages to the OpenAI Responses API schema.
+   `input` is a string or a messages vector (normalized via messages->input)."
+  [model input & {:keys [stream tools] :or {stream true}}]
+  (cond-> {:model model
+           :input (if (string? input) input (messages->input input))
+           :stream (boolean stream)}
+    tools (assoc :tools tools)))
+
 (defn chat-payload
   "Map internal messages to OpenAI chat schema."
   [model messages & {:keys [stream tools] :or {stream true}}]
@@ -25,5 +52,3 @@
 (defn auth-header [api-key]
   {"Authorization" (str "Bearer " api-key)
    "Content-Type" "application/json"})
-
-(defn endpoint [base path] (str base path))

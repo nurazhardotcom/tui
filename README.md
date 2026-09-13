@@ -11,15 +11,29 @@
 > Demo: `vhs demo.tape` renders `demo.gif` locally (gitignored). See `demo.tape` for the scripted passkey + tool-loop walkthrough.
 
 ## Key Capabilities
-- **Decoupled Engine/Harness:** local tool execution separate from model reasoning and identity verification.
+- **Hybrid gateway (not a rewrite):** Clojure gateway handles passkey -> JWT -> Zen credential injection, then proxies to upstream `opencode web` as the backend. No forked UI, no vendored agent loop.
 - **OIDC Passkey Gate:** embedded loopback (`localhost:8080`) + Clerk/Auth0/Keycloak WebAuthn, 8h scoped local JWT.
-- **Zen Proxy:** OpenAI-compatible payload mapping to `https://opencode.ai/zen/v1`, key redaction in logs.
+- **Zen Proxy (Responses API):** payload mapping to `POST https://opencode.ai/zen/v1/responses`, model `muse-spark-1.3-contributor-free`, key redaction in logs.
 - **Deterministic gates:** allow-list tools, non-root enforcement, context budgeting, parallel streaming assembly.
+
+> **Contributor-tier disclosure:** `muse-spark-1.3-contributor-free` is free in exchange for permission to use prompts/completions to train future Meta models. Bring your own key to opt out.
 
 ## Architecture
 ```
-TUI CLI -> localhost:8080/auth -> OIDC Passkey -> local JWT -> Zen API adapter -> opencode.ai/zen/v1
-                 | edge telemetry -> Cloudflare Worker (ingest + rollback target)
+Browser/phone -> tui gateway :8080 (JWT gate, Zen inject, ****last4 logs)
+                      |-> opencode web backend 127.0.0.1:4096 (sessions, PTY, tools)
+                      |-> POST opencode.ai/zen/v1/responses (muse-spark-1.3-contributor-free)
+                      | edge telemetry -> Cloudflare Worker (ingest + rollback target)
+```
+
+## Run it remotely (single-user, mobile-friendly)
+```bash
+# 1. on the host: start upstream backend
+OPENCODE_SERVER_PASSWORD=secret opencode web --port 4096
+# 2. start the gateway (reads ~/.config/tui/config.edn, needs TUI_JWT_SECRET)
+TUI_JWT_SECRET=$(openssl rand -hex 32) clojure -M:run serve
+# 3. expose via tunnel, open on your phone
+cloudflared tunnel --url http://localhost:8080
 ```
 
 ## Quickstart
@@ -34,7 +48,7 @@ clojure -M:test   # parallel runner, expects 0 failures
 Config `~/.config/tui/config.edn`:
 ```clojure
 {:auth {:provider :clerk :challenge-url "https://auth.nurazhar.com/verify" :local-port 8080}
- :model {:provider-url "https://opencode.ai/zen/v1" :model-name "opencode-zen-free" :api-key-env "OPENCODE_ZEN_KEY"}
+ :model {:provider-url "https://opencode.ai/zen/v1/responses" :model-name "muse-spark-1.3-contributor-free" :api-key-env "OPENCODE_ZEN_KEY"}
  :agent {:max-context-tokens 32000 :tool-timeout-ms 15000 :allowed-tools ["sh" "git" "cat" "ls"]}}
 ```
 

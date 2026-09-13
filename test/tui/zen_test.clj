@@ -16,3 +16,15 @@
 
 (deftest endpoint-test
   (is (= "https://opencode.ai/zen/v1/chat" (zen/endpoint zen/default-endpoint "/chat"))))
+
+(deftest responses-url-test
+  (is (= "https://opencode.ai/zen/v1/responses"
+         (zen/responses-url zen/default-endpoint))))
+
+(deftest responses-payload-test
+  (let [p (zen/responses-payload zen/contributor-model [{:role :user :content "hi"}])]
+    (is (= "muse-spark-1.3-contributor-free" (:model p)))
+    (is (= [{:role "user" :content "hi"}] (:input p)))
+    (is (true? (:stream p))))
+  (testing "string input passes through"
+    (is (= "hello" (:input (zen/responses-payload "m" "hello" :stream false))))))

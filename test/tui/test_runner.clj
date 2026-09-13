@@ -1,10 +1,12 @@
 (ns tui.test-runner
   "Runs all tui test namespaces concurrently via futures, preserves determinism."
   (:require [clojure.test :as t]
-            tui.core-test tui.auth-test tui.zen-test tui.tools-test tui.stream-test))
+            tui.core-test tui.auth-test tui.zen-test tui.zen-oauth-test
+            tui.gateway-test tui.tools-test tui.stream-test))
 
 (def test-namespaces
-  '[tui.core-test tui.auth-test tui.zen-test tui.tools-test tui.stream-test])
+  '[tui.core-test tui.auth-test tui.zen-test tui.zen-oauth-test
+    tui.gateway-test tui.tools-test tui.stream-test])
 
 (defn -main [& _]
   (println "Running" (count test-namespaces) "test namespaces in parallel (futures)...")
